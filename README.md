@@ -33,6 +33,9 @@ Caesar-Cipher/
 ├── examples/
 │   ├── sample_input.txt      # Input you can pipe into the program
 │   └── sample_session.txt    # Expected interactive session
+├── screenshots/
+│   ├── README.md             # What to capture and the exact text to type
+│   └── 01-menu.png ... 08-tests.png
 └── tests/
     └── test_caesar_cipher.py # Checks for encrypt and decrypt
 ```
@@ -195,18 +198,19 @@ This cipher is a teaching example. It is not a secure way to protect real data. 
 
 ## Screenshots to capture
 
-Take these from a real terminal after you run `python caesar_cipher.py`. Keep the full window visible, including the command you used to start the program.
+Take these from a real terminal. Exact keystrokes and the line that must be visible are in [screenshots/README.md](screenshots/README.md). Keep the full window visible, including the command you used to start the program.
 
-1. The main menu, before any choice is entered.
-2. Encrypt `Hello, World! 123` with shift `3`, showing `Khoor, Zruog! 123`.
-3. Decrypt `Khoor, Zruog! 123` with shift `3`, showing the original message.
-4. Encrypt `Attack at dawn.` with shift `5`, showing `Fyyfhp fy ifbs.`.
-5. An invalid menu choice such as `9`, showing the error and the menu again.
-6. An invalid shift such as `five`, then a corrected shift, showing the error text.
-7. Option `3`, showing `Goodbye.`
-8. Optional: `python -m unittest tests.test_caesar_cipher -v` with all tests `OK`.
+Save the images in `screenshots/` with these names:
 
-Save the images as `screenshots/01-menu.png` through `screenshots/08-tests.png` if your submission asks for image proof.
+1. `01-menu.png` — menu waiting for a choice.
+2. `02-encrypt-hello.png` — `Hello, World! 123` with shift `3` becomes `Khoor, Zruog! 123`.
+3. `03-decrypt-hello.png` — that ciphertext with shift `3` returns `Hello, World! 123`.
+4. `04-encrypt-attack.png` — `Attack at dawn.` with shift `5` becomes `Fyyfhp fy ifbs.`
+5. `05-invalid-menu.png` — choice `9` shows the invalid-choice message.
+6. `06-invalid-shift-rejected.png` — shift `five` is rejected and the program asks again.
+7. `06-invalid-shift.png` — shift `5` then decrypts the attack message.
+8. `07-exit.png` — choice `3` shows `Goodbye.`
+9. `08-tests.png` — `python -m unittest tests.test_caesar_cipher -v` ends with `OK`.
 
 ## Internship submission checklist
 
