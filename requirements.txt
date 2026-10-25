@@ -1,0 +1,2 @@
+# No third-party packages are required.
+# Run this project with Python 3.8 or newer.

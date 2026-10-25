@@ -1,0 +1,92 @@
+Sample interactive session for the Caesar Cipher console program.
+Lines that the user types are the values after each prompt.
+
+Welcome. Letters are shifted. Everything else stays the same.
+
+==============================================
+           CAESAR CIPHER TOOL
+     Cybersecurity Internship Task
+==============================================
+1. Encrypt Text
+2. Decrypt Text
+3. Exit
+Enter your choice (1-3): 1
+Enter the message (press Enter to go back): Hello, World! 123
+Enter the shift value (whole number, or 'back'): 3
+
+Original message : Hello, World! 123
+Shift entered    : 3
+Shift used       : 3 (wrapped into 0-25)
+Encrypted text   : Khoor, Zruog! 123
+
+==============================================
+           CAESAR CIPHER TOOL
+     Cybersecurity Internship Task
+==============================================
+1. Encrypt Text
+2. Decrypt Text
+3. Exit
+Enter your choice (1-3): 2
+Enter the message (press Enter to go back): Khoor, Zruog! 123
+Enter the shift value (whole number, or 'back'): 3
+
+Original message : Khoor, Zruog! 123
+Shift entered    : 3
+Shift used       : 3 (wrapped into 0-25)
+Decrypted text   : Hello, World! 123
+
+==============================================
+           CAESAR CIPHER TOOL
+     Cybersecurity Internship Task
+==============================================
+1. Encrypt Text
+2. Decrypt Text
+3. Exit
+Enter your choice (1-3): 1
+Enter the message (press Enter to go back): Attack at dawn.
+Enter the shift value (whole number, or 'back'): 5
+
+Original message : Attack at dawn.
+Shift entered    : 5
+Shift used       : 5 (wrapped into 0-25)
+Encrypted text   : Fyyfhp fy ifbs.
+
+==============================================
+           CAESAR CIPHER TOOL
+     Cybersecurity Internship Task
+==============================================
+1. Encrypt Text
+2. Decrypt Text
+3. Exit
+Enter your choice (1-3): 9
+Invalid choice. Please enter 1, 2, or 3.
+
+==============================================
+           CAESAR CIPHER TOOL
+     Cybersecurity Internship Task
+==============================================
+1. Encrypt Text
+2. Decrypt Text
+3. Exit
+Enter your choice (1-3): 2
+Enter the message (press Enter to go back): Fyyfhp fy ifbs.
+Enter the shift value (whole number, or 'back'): five
+Invalid shift. Enter a whole number such as 3 or -1.
+
+Enter the shift value (whole number, or 'back'): 5
+
+Original message : Fyyfhp fy ifbs.
+Shift entered    : 5
+Shift used       : 5 (wrapped into 0-25)
+Decrypted text   : Attack at dawn.
+
+==============================================
+           CAESAR CIPHER TOOL
+     Cybersecurity Internship Task
+==============================================
+1. Encrypt Text
+2. Decrypt Text
+3. Exit
+Enter your choice (1-3): 3
+
+Goodbye.
