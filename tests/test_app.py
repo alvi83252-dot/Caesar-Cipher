@@ -1,8 +1,10 @@
 """Checks for the Vercel Flask entrypoint. Run: python -m unittest tests.test_app"""
 
 import unittest
+from unittest.mock import patch
 
 from app import app
+from caesar_cipher import DictionaryError
 
 
 class CipherApiTests(unittest.TestCase):
@@ -61,3 +63,32 @@ class CipherApiTests(unittest.TestCase):
         )
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.get_json()["error"], "Enter a message.")
+
+    def test_crack_stops_when_the_dictionary_is_ninety_percent_sure(self):
+        def is_word(word):
+            return word in {"attack", "at", "dawn"}
+
+        with patch("caesar_cipher.lookup_word", side_effect=is_word):
+            response = self.client.post(
+                "/api/crack",
+                json={"message": "Fyyfhp fy ifbs."},
+            )
+
+        self.assertEqual(response.status_code, 200)
+        body = response.get_json()
+        self.assertEqual(body["result"], "Attack at dawn.")
+        self.assertEqual(body["shiftUsed"], 5)
+        self.assertEqual(body["shiftsTried"], 6)
+        self.assertEqual(body["confidence"], 100)
+        self.assertTrue(body["confident"])
+        self.assertEqual(body["label"], "Cracked text")
+
+    def test_crack_reports_a_dictionary_outage(self):
+        def fail(word):
+            raise DictionaryError("Could not reach the dictionary API.")
+
+        with patch("caesar_cipher.lookup_word", side_effect=fail):
+            response = self.client.post("/api/crack", json={"message": "Fyyfhp fy ifbs."})
+
+        self.assertEqual(response.status_code, 502)
+        self.assertIn("dictionary", response.get_json()["error"])

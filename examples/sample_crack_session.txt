@@ -1,0 +1,44 @@
+Sample auto-crack session. Lines the user types are the values after each prompt.
+The dictionary check needs the internet. Shift 5 is the first result at 90% English,
+so shifts 6 through 25 are not tried.
+
+Welcome. Letters are shifted. Everything else stays the same.
+
+==============================================
+           CAESAR CIPHER TOOL
+     Cybersecurity Internship Task
+==============================================
+1. Encrypt Text
+2. Decrypt Text
+3. Exit
+4. Auto-crack
+Enter your choice (1-4): 4
+Enter the message (press Enter to go back): Fyyfhp fy ifbs.
+
+Brute-forcing every shift. Each result is checked with the dictionary API.
+The spinner stops when a result is at least 90% English.
+
+Shift 0: 0% English
+Shift 1: 0% English
+Shift 2: 0% English
+Shift 3: 0% English
+Shift 4: 0% English
+Shift 5: 100% English
+Stopped at 90% English. Later shifts were not tried.
+
+Ciphertext       : Fyyfhp fy ifbs.
+Shift found      : 5
+Confidence       : 100% (3 of 3 words)
+Cracked text     : Attack at dawn.
+
+==============================================
+           CAESAR CIPHER TOOL
+     Cybersecurity Internship Task
+==============================================
+1. Encrypt Text
+2. Decrypt Text
+3. Exit
+4. Auto-crack
+Enter your choice (1-4): 3
+
+Goodbye.

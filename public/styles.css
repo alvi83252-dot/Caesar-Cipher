@@ -95,7 +95,7 @@ legend,
 
 .choices {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(3, 1fr);
   gap: 10px;
 }
 
@@ -167,6 +167,29 @@ button:focus-visible {
   background: var(--green-dark);
 }
 
+button:disabled {
+  cursor: wait;
+  opacity: 0.75;
+}
+
+.spinner {
+  display: inline-block;
+  width: 0.9em;
+  height: 0.9em;
+  margin-right: 8px;
+  border: 2px solid #c8bfb0;
+  border-top-color: #f6f1e7;
+  border-radius: 50%;
+  vertical-align: -0.15em;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 .secondary {
   color: var(--ink);
   background: transparent;
@@ -207,7 +230,8 @@ button:focus-visible {
   color: #f6f1e7;
 }
 
-#result-empty {
+#result-empty,
+#result-working {
   margin-bottom: 0;
 }
 

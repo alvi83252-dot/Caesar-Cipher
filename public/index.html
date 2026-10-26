@@ -13,6 +13,7 @@
     <p class="intro">
       Shift every letter by a fixed number of places. Spaces, numbers, and
       punctuation stay as they are. Uppercase and lowercase are handled separately.
+      Auto-crack tries every shift and stops when a dictionary API is 90% sure the text is English.
     </p>
   </header>
 
@@ -29,14 +30,20 @@
             <input type="radio" name="mode" value="decrypt">
             <span>Decrypt Text</span>
           </label>
+          <label class="choice">
+            <input type="radio" name="mode" value="crack">
+            <span>Auto-crack</span>
+          </label>
         </div>
       </fieldset>
 
       <label class="field" for="message">Message</label>
       <textarea id="message" name="message" rows="5" placeholder="Type any message"></textarea>
 
-      <label class="field" for="shift">Shift value</label>
-      <input id="shift" name="shift" type="text" inputmode="numeric" autocomplete="off" placeholder="Whole number, such as 3 or -1">
+      <div id="shift-field">
+        <label class="field" for="shift">Shift value</label>
+        <input id="shift" name="shift" type="text" inputmode="numeric" autocomplete="off" placeholder="Whole number, such as 3 or -1">
+      </div>
 
       <div class="actions">
         <button type="submit" id="run-button">Run</button>
@@ -50,24 +57,30 @@
         <button type="button" class="sample" data-mode="encrypt" data-message="Hello, World! 123" data-shift="3">Encrypt Hello, World! 123 by 3</button>
         <button type="button" class="sample" data-mode="decrypt" data-message="Khoor, Zruog! 123" data-shift="3">Decrypt Khoor, Zruog! 123 by 3</button>
         <button type="button" class="sample" data-mode="encrypt" data-message="Attack at dawn." data-shift="5">Encrypt Attack at dawn. by 5</button>
+        <button type="button" class="sample" data-mode="crack" data-message="Fyyfhp fy ifbs.">Crack Fyyfhp fy ifbs.</button>
       </div>
     </form>
 
     <section class="panel result-panel" aria-live="polite">
       <h2>Result</h2>
       <p id="result-empty">Run the cipher to see the result here.</p>
+      <p id="result-working" hidden><span class="spinner" aria-hidden="true"></span> Trying every shift. This keeps spinning until the text is 90% English.</p>
       <dl id="result" hidden>
         <div>
           <dt>Original message</dt>
           <dd id="original-message"></dd>
         </div>
         <div>
-          <dt>Shift entered</dt>
+          <dt id="shift-entered-label">Shift entered</dt>
           <dd id="shift-entered"></dd>
         </div>
         <div>
-          <dt>Shift used</dt>
+          <dt id="shift-used-label">Shift used</dt>
           <dd id="shift-used"></dd>
+        </div>
+        <div id="confidence-row" hidden>
+          <dt>Confidence</dt>
+          <dd id="confidence"></dd>
         </div>
         <div>
           <dt id="result-label">Encrypted text</dt>
@@ -78,7 +91,7 @@
   </main>
 
   <footer class="page-footer">
-    <p>Encryption and decryption run through <code>caesar_cipher.py</code>.</p>
+    <p>Encryption, decryption, and auto-crack run through <code>caesar_cipher.py</code>. Auto-crack uses the Free Dictionary API.</p>
   </footer>
 
   <script src="app.js"></script>

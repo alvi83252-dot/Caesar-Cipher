@@ -1,6 +1,6 @@
 # Caesar Cipher
 
-Console program and web page for a cybersecurity internship task. Both encrypt and decrypt text with the same Caesar cipher rules. The terminal program is `caesar_cipher.py`. The page in `public/` sends each message to that same program through `/api/cipher`.
+Console program and web page for a cybersecurity internship task. Both encrypt and decrypt text with the same Caesar cipher rules. The terminal program is `caesar_cipher.py`. The page in `public/` sends each message to that same program through `/api/cipher`. Auto-crack tries every shift, checks the words with the Free Dictionary API, and stops at 90% English.
 
 A Caesar cipher shifts every letter by a fixed number of places in the alphabet. The number is the key. A shift of 3 turns `A` into `D` and `a` into `d`. To decrypt, shift the same number of places in the opposite direction.
 
@@ -8,7 +8,8 @@ Characters that are not letters are left alone. That includes spaces, digits, an
 
 ## Features
 
-- Menu with Encrypt, Decrypt, and Exit
+- Menu with Encrypt, Decrypt, Exit, and Auto-crack
+- Auto-crack brute-forces every shift, checks each result with the Free Dictionary API, and stops at 90% English
 - Any message and any whole-number shift
 - Uppercase and lowercase letters
 - Spaces, numbers, and punctuation stay unchanged
@@ -16,7 +17,7 @@ Characters that are not letters are left alone. That includes spaces, digits, an
 - Invalid menu choices and non-numeric shifts are rejected with a short message
 - Empty message or the word `back` returns to the menu
 - Ctrl+C ends the program without a traceback
-- Web page with Encrypt and Decrypt, the same shift rules, and the same result fields
+- Web page with Encrypt, Decrypt, and Auto-crack, the same shift rules, and the same result fields
 
 ## Requirements
 
@@ -38,10 +39,12 @@ Caesar-Cipher/
 ├── public/
 │   ├── index.html            # Web page
 │   ├── styles.css
-│   └── app.js                # Form that calls /api/cipher
+│   └── app.js                # Form that calls /api/cipher and /api/crack
 ├── examples/
-│   ├── sample_input.txt      # Input you can pipe into the program
-│   └── sample_session.txt    # Expected interactive session
+│   ├── sample_input.txt       # Input you can pipe into the program
+│   ├── sample_session.txt     # Expected interactive session
+│   ├── sample_crack_input.txt # Auto-crack, then exit. Needs the internet.
+│   └── sample_crack_session.txt
 ├── screenshots/
 │   ├── README.md             # What to capture and the exact text to type
 │   └── 01-menu.png ... 08-tests.png
@@ -64,9 +67,10 @@ You will see this menu:
 1. Encrypt Text
 2. Decrypt Text
 3. Exit
+4. Auto-crack
 ```
 
-Choose `1` or `2`, type a message, then type a shift. Choose `3` to leave.
+Choose `1` or `2`, type a message, then type a shift. Choose `4` to brute-force a ciphertext. Choose `3` to leave.
 
 Replay the saved sample input:
 
@@ -122,13 +126,16 @@ Then open `http://127.0.0.1:5000/`.
 
 Choose Encrypt or Decrypt, enter a message and a whole-number shift, then press Run. The page sends the message to `/api/cipher`. That route calls `encrypt` or `decrypt` in `caesar_cipher.py`. The result shows the original message, the shift you entered, the shift wrapped into 0-25, and the cipher text. A shift such as `five` shows the same kind of error as the terminal program.
 
-The three sample buttons run the known test cases:
+Choose Auto-crack when the shift is unknown. The shift field hides, and the page calls `/api/crack`. A spinner stays on screen while every shift is checked against the Free Dictionary API. It stops when a result is at least 90% English. The result shows the shift that was found, the confidence, and the recovered text.
+
+The sample buttons run the known test cases:
 
 | Action | Message | Shift | Result |
 | --- | --- | --- | --- |
 | Encrypt | `Hello, World! 123` | `3` | `Khoor, Zruog! 123` |
 | Decrypt | `Khoor, Zruog! 123` | `3` | `Hello, World! 123` |
 | Encrypt | `Attack at dawn.` | `5` | `Fyyfhp fy ifbs.` |
+| Auto-crack | `Fyyfhp fy ifbs.` | found `5` | `Attack at dawn.` at 100% |
 
 ## Example session
 
@@ -144,7 +151,8 @@ Welcome. Letters are shifted. Everything else stays the same.
 1. Encrypt Text
 2. Decrypt Text
 3. Exit
-Enter your choice (1-3): 1
+4. Auto-crack
+Enter your choice (1-4): 1
 Enter the message (press Enter to go back): Hello, World! 123
 Enter the shift value (whole number, or 'back'): 3
 
@@ -160,7 +168,8 @@ Encrypted text   : Khoor, Zruog! 123
 1. Encrypt Text
 2. Decrypt Text
 3. Exit
-Enter your choice (1-3): 2
+4. Auto-crack
+Enter your choice (1-4): 2
 Enter the message (press Enter to go back): Khoor, Zruog! 123
 Enter the shift value (whole number, or 'back'): 3
 
@@ -176,7 +185,8 @@ Decrypted text   : Hello, World! 123
 1. Encrypt Text
 2. Decrypt Text
 3. Exit
-Enter your choice (1-3): 1
+4. Auto-crack
+Enter your choice (1-4): 1
 Enter the message (press Enter to go back): Attack at dawn.
 Enter the shift value (whole number, or 'back'): 5
 
@@ -192,8 +202,9 @@ Encrypted text   : Fyyfhp fy ifbs.
 1. Encrypt Text
 2. Decrypt Text
 3. Exit
-Enter your choice (1-3): 9
-Invalid choice. Please enter 1, 2, or 3.
+4. Auto-crack
+Enter your choice (1-4): 9
+Invalid choice. Please enter 1, 2, 3, or 4.
 
 ==============================================
            CAESAR CIPHER TOOL
@@ -202,7 +213,8 @@ Invalid choice. Please enter 1, 2, or 3.
 1. Encrypt Text
 2. Decrypt Text
 3. Exit
-Enter your choice (1-3): 2
+4. Auto-crack
+Enter your choice (1-4): 2
 Enter the message (press Enter to go back): Fyyfhp fy ifbs.
 Enter the shift value (whole number, or 'back'): five
 Invalid shift. Enter a whole number such as 3 or -1.
@@ -221,7 +233,8 @@ Decrypted text   : Attack at dawn.
 1. Encrypt Text
 2. Decrypt Text
 3. Exit
-Enter your choice (1-3): 3
+4. Auto-crack
+Enter your choice (1-4): 3
 
 Goodbye.
 ```
@@ -236,6 +249,25 @@ Goodbye.
 | Encrypt | `XYZ xyz!` | `1` | `YZA yza!` |
 | Encrypt | `Abc!` | `26` | `Abc!` |
 | Encrypt | `abc` | `-1` | `zab` |
+
+## Auto-crack
+
+Choose `4` and paste ciphertext. You do not enter a shift. The program needs the internet. It uses the [Free Dictionary API](https://dictionaryapi.dev/) and does not need an API key.
+
+```bash
+Get-Content -Raw examples\sample_crack_input.txt | python caesar_cipher.py
+```
+
+What it does:
+
+1. Decrypt the ciphertext with shift 0, then 1, then 2, and so on.
+2. Split each result into words. Spaces, numbers, and punctuation are not scored.
+3. Ask the dictionary API whether each word is English. Answers are cached.
+4. Confidence is the share of words the API recognizes.
+5. Stop at the first shift that reaches 90%. Later shifts are not tried.
+6. If no shift reaches 90%, print the best result and say it stayed under 90%.
+
+`Fyyfhp fy ifbs.` is `Attack at dawn.` encrypted with shift 5. Auto-crack should stop at shift 5 with `Attack at dawn.` and 100% confidence, because all 3 words are English. Two of those three words would be only 67%, so the search would continue.
 
 ## How the cipher works
 
@@ -269,7 +301,8 @@ Save the images in `screenshots/` with these names:
 ## Internship submission checklist
 
 - [ ] Source code runs with `python caesar_cipher.py` and has no extra installs
-- [ ] Menu offers Encrypt, Decrypt, and Exit
+- [ ] Menu offers Encrypt, Decrypt, Exit, and Auto-crack
+- [ ] Auto-crack brute-forces the shift, uses a dictionary API, and stops at 90% English
 - [ ] Encryption and decryption are demonstrated with the same message and shift
 - [ ] Sample output shows spaces, numbers, punctuation, and both letter cases
 - [ ] Invalid menu input and invalid shift input are shown

@@ -12,7 +12,7 @@ from pathlib import Path
 
 from flask import Flask, jsonify, request, send_from_directory
 
-from caesar_cipher import decrypt, encrypt, normalize_shift
+from caesar_cipher import DictionaryError, crack_text, decrypt, encrypt, normalize_shift
 
 app = Flask(__name__)
 PUBLIC_DIR = Path(__file__).resolve().parent / "public"
@@ -66,6 +66,40 @@ def cipher():
         shiftUsed=normalize_shift(shift),
         label=label,
         result=result,
+    )
+
+
+@app.post("/api/crack")
+def crack():
+    """Brute-force a ciphertext and stop when the dictionary is 90% confident."""
+    payload = request.get_json(silent=True)
+    if not isinstance(payload, dict):
+        return jsonify(error="Send a JSON object with a message."), 400
+
+    message = payload.get("message")
+    if not isinstance(message, str) or message == "":
+        return jsonify(error="Enter a message."), 400
+
+    try:
+        result = crack_text(message)
+    except DictionaryError as error:
+        return jsonify(error=str(error)), 502
+
+    if result["confident"]:
+        label = "Cracked text"
+    else:
+        label = "Best guess"
+
+    return jsonify(
+        original=message,
+        shiftUsed=result["shift"],
+        shiftsTried=result["shiftsTried"],
+        label=label,
+        result=result["text"],
+        confidence=round(result["confidence"] * 100),
+        confident=result["confident"],
+        matched=result["matched"],
+        words=result["total"],
     )
 
 

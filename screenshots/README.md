@@ -23,7 +23,7 @@ Start the program:
 python caesar_cipher.py
 ```
 
-Type nothing else. Capture the window when the menu is waiting at `Enter your choice (1-3):`.
+Type nothing else. Capture the window when the menu is waiting at `Enter your choice (1-4):`.
 
 You should see:
 
@@ -31,6 +31,7 @@ You should see:
 1. Encrypt Text
 2. Decrypt Text
 3. Exit
+4. Auto-crack
 ```
 
 ## 02-encrypt-hello.png
@@ -92,7 +93,7 @@ Type:
 Capture the error and the menu that appears again:
 
 ```text
-Invalid choice. Please enter 1, 2, or 3.
+Invalid choice. Please enter 1, 2, 3, or 4.
 ```
 
 ## 06-invalid-shift.png
@@ -128,6 +129,25 @@ Capture the closing line:
 ```text
 Goodbye.
 ```
+
+## 09-auto-crack.png
+
+Stay in the same program, or start it again. Type:
+
+```text
+4
+Fyyfhp fy ifbs.
+```
+
+The spinner keeps moving while each shift is checked with the dictionary API. Capture the window when the spinner has stopped and these lines are on screen:
+
+```text
+Stopped at 90% English. Later shifts were not tried.
+Shift found      : 5
+Cracked text     : Attack at dawn.
+```
+
+The dictionary check needs the internet. Shift lines before 5 may appear when the output is piped. On a normal terminal the spinner replaces those lines.
 
 ## 08-tests.png
 
