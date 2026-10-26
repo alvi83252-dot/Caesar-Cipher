@@ -1,6 +1,6 @@
 # Caesar Cipher
 
-Console program for a cybersecurity internship task. It encrypts and decrypts text with a Caesar cipher. You run it in a terminal. There is no web page or graphical interface.
+Console program and web page for a cybersecurity internship task. Both encrypt and decrypt text with the same Caesar cipher rules. The terminal program is `caesar_cipher.py`. The page in `public/` sends each message to that same program through `/api/cipher`.
 
 A Caesar cipher shifts every letter by a fixed number of places in the alphabet. The number is the key. A shift of 3 turns `A` into `D` and `a` into `d`. To decrypt, shift the same number of places in the opposite direction.
 
@@ -16,20 +16,29 @@ Characters that are not letters are left alone. That includes spaces, digits, an
 - Invalid menu choices and non-numeric shifts are rejected with a short message
 - Empty message or the word `back` returns to the menu
 - Ctrl+C ends the program without a traceback
+- Web page with Encrypt and Decrypt, the same shift rules, and the same result fields
 
 ## Requirements
 
-- Python 3.8 or newer
-- No third-party packages
+- Python 3.12 or newer for the web app (3.8 or newer still runs the console program)
+- No third-party packages for `python caesar_cipher.py`
+- Flask, listed in `requirements.txt`, for the web app
 
 ## Folder structure
 
 ```text
 Caesar-Cipher/
-├── caesar_cipher.py          # Main console program
-├── requirements.txt          # Notes that no extra packages are needed
+├── caesar_cipher.py          # Cipher used by the console program and the web API
+├── app.py                    # Flask app for local runs and Vercel
+├── requirements.txt          # Flask for the web app
+├── pyproject.toml            # Vercel entrypoint
+├── vercel.json
 ├── README.md
 ├── .gitignore
+├── public/
+│   ├── index.html            # Web page
+│   ├── styles.css
+│   └── app.js                # Form that calls /api/cipher
 ├── examples/
 │   ├── sample_input.txt      # Input you can pipe into the program
 │   └── sample_session.txt    # Expected interactive session
@@ -37,7 +46,8 @@ Caesar-Cipher/
 │   ├── README.md             # What to capture and the exact text to type
 │   └── 01-menu.png ... 08-tests.png
 └── tests/
-    └── test_caesar_cipher.py # Checks for encrypt and decrypt
+    ├── test_caesar_cipher.py # Checks for encrypt and decrypt
+    └── test_app.py           # Checks the web API
 ```
 
 ## How to run
@@ -73,8 +83,52 @@ Get-Content -Raw examples\sample_input.txt | python caesar_cipher.py
 Run the checks:
 
 ```bash
-python -m unittest tests.test_caesar_cipher -v
+python -m unittest discover -s tests -v
 ```
+
+The console checks do not need Flask. The web checks do. Install it once with:
+
+```bash
+pip install -r requirements.txt
+```
+
+## Deploy on Vercel
+
+The site is a Flask app. `pyproject.toml` sets the entrypoint to `app:app`, which is the `app` object in `app.py`. The page in `public/` is static. The form posts to `/api/cipher`, and that route calls `encrypt` and `decrypt` from `caesar_cipher.py`.
+
+From this folder, with the [Vercel CLI](https://vercel.com/docs/cli) installed and logged in:
+
+```bash
+vercel
+```
+
+For a production deployment:
+
+```bash
+vercel --prod
+```
+
+You can also import the Git repository in the Vercel dashboard. Leave the framework preset on Flask. Do not set a custom build command. Vercel reads `pyproject.toml` and `requirements.txt` on its own.
+
+## Web page
+
+Start the app from this folder:
+
+```bash
+python app.py
+```
+
+Then open `http://127.0.0.1:5000/`.
+
+Choose Encrypt or Decrypt, enter a message and a whole-number shift, then press Run. The page sends the message to `/api/cipher`. That route calls `encrypt` or `decrypt` in `caesar_cipher.py`. The result shows the original message, the shift you entered, the shift wrapped into 0-25, and the cipher text. A shift such as `five` shows the same kind of error as the terminal program.
+
+The three sample buttons run the known test cases:
+
+| Action | Message | Shift | Result |
+| --- | --- | --- | --- |
+| Encrypt | `Hello, World! 123` | `3` | `Khoor, Zruog! 123` |
+| Decrypt | `Khoor, Zruog! 123` | `3` | `Hello, World! 123` |
+| Encrypt | `Attack at dawn.` | `5` | `Fyyfhp fy ifbs.` |
 
 ## Example session
 

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Caesar Cipher</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="page-header">
+    <p class="eyebrow">Cybersecurity Internship Task</p>
+    <h1>Caesar Cipher</h1>
+    <p class="intro">
+      Shift every letter by a fixed number of places. Spaces, numbers, and
+      punctuation stay as they are. Uppercase and lowercase are handled separately.
+    </p>
+  </header>
+
+  <main class="layout">
+    <form id="cipher-form" class="panel">
+      <fieldset>
+        <legend>Action</legend>
+        <div class="choices">
+          <label class="choice">
+            <input type="radio" name="mode" value="encrypt" checked>
+            <span>Encrypt Text</span>
+          </label>
+          <label class="choice">
+            <input type="radio" name="mode" value="decrypt">
+            <span>Decrypt Text</span>
+          </label>
+        </div>
+      </fieldset>
+
+      <label class="field" for="message">Message</label>
+      <textarea id="message" name="message" rows="5" placeholder="Type any message"></textarea>
+
+      <label class="field" for="shift">Shift value</label>
+      <input id="shift" name="shift" type="text" inputmode="numeric" autocomplete="off" placeholder="Whole number, such as 3 or -1">
+
+      <div class="actions">
+        <button type="submit" id="run-button">Run</button>
+        <button type="button" id="clear-button" class="secondary">Clear</button>
+      </div>
+
+      <p id="form-error" class="error" role="alert" hidden></p>
+
+      <div class="samples">
+        <p>Try a sample</p>
+        <button type="button" class="sample" data-mode="encrypt" data-message="Hello, World! 123" data-shift="3">Encrypt Hello, World! 123 by 3</button>
+        <button type="button" class="sample" data-mode="decrypt" data-message="Khoor, Zruog! 123" data-shift="3">Decrypt Khoor, Zruog! 123 by 3</button>
+        <button type="button" class="sample" data-mode="encrypt" data-message="Attack at dawn." data-shift="5">Encrypt Attack at dawn. by 5</button>
+      </div>
+    </form>
+
+    <section class="panel result-panel" aria-live="polite">
+      <h2>Result</h2>
+      <p id="result-empty">Run the cipher to see the result here.</p>
+      <dl id="result" hidden>
+        <div>
+          <dt>Original message</dt>
+          <dd id="original-message"></dd>
+        </div>
+        <div>
+          <dt>Shift entered</dt>
+          <dd id="shift-entered"></dd>
+        </div>
+        <div>
+          <dt>Shift used</dt>
+          <dd id="shift-used"></dd>
+        </div>
+        <div>
+          <dt id="result-label">Encrypted text</dt>
+          <dd id="result-text"></dd>
+        </div>
+      </dl>
+    </section>
+  </main>
+
+  <footer class="page-footer">
+    <p>Encryption and decryption run through <code>caesar_cipher.py</code>.</p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,11 @@
+[project]
+name = "caesar-cipher"
+version = "0.1.0"
+description = "Caesar cipher console tool and web app"
+requires-python = ">=3.12"
+dependencies = [
+    "flask>=3.1.0",
+]
+
+[tool.vercel]
+entrypoint = "app:app"
