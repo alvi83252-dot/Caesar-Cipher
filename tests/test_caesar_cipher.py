@@ -7,6 +7,7 @@ from unittest.mock import patch
 
 from caesar_cipher import (
     DictionaryError,
+    clear_dictionary_cache,
     crack_text,
     decrypt,
     encrypt,
@@ -39,6 +40,9 @@ class CaesarCipherTests(unittest.TestCase):
 
 
 class AutoCrackTests(unittest.TestCase):
+    def setUp(self):
+        clear_dictionary_cache()
+
     def test_stops_at_ninety_percent_and_skips_later_shifts(self):
         ciphertext = encrypt("Attack at dawn.", 5)
         seen = []
@@ -115,6 +119,28 @@ class AutoCrackTests(unittest.TestCase):
         request = urlopen.call_args.args[0]
         self.assertIn("api.dictionaryapi.dev", request.full_url)
         self.assertTrue(request.full_url.endswith("/dawn"))
+
+        self.assertTrue(lookup_word("Dawn"))
+        self.assertEqual(urlopen.call_count, 1)
+
+    @patch("caesar_cipher.time.sleep")
+    @patch("caesar_cipher.urllib.request.urlopen")
+    def test_rate_limit_waits_and_tries_again(self, urlopen, _sleep):
+        limited = urllib.error.HTTPError(
+            "https://api.dictionaryapi.dev/api/v2/entries/en/dawn",
+            429,
+            "Too Many Requests",
+            hdrs=None,
+            fp=None,
+        )
+        response = unittest.mock.Mock()
+        response.status = 200
+        response.__enter__ = lambda self: self
+        response.__exit__ = lambda self, *args: False
+        urlopen.side_effect = [limited, response]
+
+        self.assertTrue(lookup_word("dawn"))
+        self.assertEqual(urlopen.call_count, 2)
 
     @patch("caesar_cipher.urllib.request.urlopen")
     def test_unknown_word_is_a_dictionary_miss(self, urlopen):

@@ -23,7 +23,10 @@ ALPHABET_SIZE = 26
 DICTIONARY_URL = "https://api.dictionaryapi.dev/api/v2/entries/en/{word}"
 # Stop brute force once this share of the words are in the dictionary.
 CONFIDENCE_PERCENT = 90
-REQUEST_TIMEOUT_SECONDS = 5
+REQUEST_TIMEOUT_SECONDS = 8
+# Leave a gap between calls so a burst of shifts does not trip the rate limit.
+LOOKUP_GAP_SECONDS = 0.45
+RATE_LIMIT_WAITS = (2, 4, 8, 12, 15)
 
 
 def normalize_shift(shift):
@@ -102,6 +105,38 @@ def is_confident(matched, total):
     return total > 0 and matched * 100 >= CONFIDENCE_PERCENT * total
 
 
+# Answers already received in this run of the program. Repeating Auto-crack
+# on the same words then skips the network.
+WORD_CACHE = {}
+_last_lookup_at = 0.0
+
+
+def clear_dictionary_cache():
+    """Forget cached dictionary answers. Tests use this between cases."""
+    global _last_lookup_at
+    WORD_CACHE.clear()
+    _last_lookup_at = 0.0
+
+
+def _wait_for_gap():
+    """Pause so two lookups are not sent back to back."""
+    global _last_lookup_at
+    elapsed = time.monotonic() - _last_lookup_at
+    if _last_lookup_at and elapsed < LOOKUP_GAP_SECONDS:
+        time.sleep(LOOKUP_GAP_SECONDS - elapsed)
+    _last_lookup_at = time.monotonic()
+
+
+def _rate_limit_delay(error, attempt):
+    """Use the server's Retry-After header when it sends one."""
+    header = ""
+    if error.headers is not None:
+        header = error.headers.get("Retry-After") or ""
+    if header.isdigit():
+        return min(int(header), 15)
+    return RATE_LIMIT_WAITS[min(attempt, len(RATE_LIMIT_WAITS) - 1)]
+
+
 def lookup_word(word):
     """
     Ask the Free Dictionary API whether word is English.
@@ -109,9 +144,14 @@ def lookup_word(word):
     The console program stays free of extra packages: this uses urllib.
     No API key is required. A 404 means the word is not listed. A repeated
     502 or 503 is also treated as not listed, because that API sometimes
-    fails on strings that are not words. Rate limits are retried, then reported.
+    fails on strings that are not words. A 429 means the server is busy:
+    the lookup waits and tries again instead of stopping the crack.
     """
-    quoted = urllib.parse.quote(word.lower())
+    key = word.lower()
+    if key in WORD_CACHE:
+        return WORD_CACHE[key]
+
+    quoted = urllib.parse.quote(key)
     url = DICTIONARY_URL.format(word=quoted)
     request = urllib.request.Request(
         url,
@@ -122,26 +162,35 @@ def lookup_word(word):
     )
     gateway_errors_left = 2
     network_errors_left = 3
+    rate_limits_left = len(RATE_LIMIT_WAITS)
 
     while True:
+        _wait_for_gap()
         try:
             with urllib.request.urlopen(request, timeout=REQUEST_TIMEOUT_SECONDS) as response:
                 response.read()
+                WORD_CACHE[key] = True
                 return True
         except urllib.error.HTTPError as error:
             if error.code == 404:
+                WORD_CACHE[key] = False
                 return False
             if error.code in (502, 503, 504) and gateway_errors_left > 0:
                 gateway_errors_left -= 1
                 time.sleep(0.4)
                 continue
             if error.code in (502, 503, 504):
+                WORD_CACHE[key] = False
                 return False
+            if error.code == 429 and rate_limits_left > 0:
+                delay = _rate_limit_delay(error, len(RATE_LIMIT_WAITS) - rate_limits_left)
+                rate_limits_left -= 1
+                time.sleep(delay)
+                continue
             if error.code == 429:
-                time.sleep(1)
-                gateway_errors_left -= 1
-                if gateway_errors_left >= 0:
-                    continue
+                raise DictionaryError(
+                    "The dictionary API is busy. Wait a minute and try Auto-crack again."
+                ) from error
             raise DictionaryError(f"Dictionary API returned {error.code}.") from error
         except urllib.error.URLError as error:
             # The dictionary server often resets the connection on the first try.
