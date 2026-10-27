@@ -121,6 +121,7 @@ def lookup_word(word):
         },
     )
     gateway_errors_left = 2
+    network_errors_left = 3
 
     while True:
         try:
@@ -143,6 +144,11 @@ def lookup_word(word):
                     continue
             raise DictionaryError(f"Dictionary API returned {error.code}.") from error
         except urllib.error.URLError as error:
+            # The dictionary server often resets the connection on the first try.
+            if network_errors_left > 0:
+                network_errors_left -= 1
+                time.sleep(0.6)
+                continue
             raise DictionaryError("Could not reach the dictionary API.") from error
 
 

@@ -142,8 +142,9 @@ class AutoCrackTests(unittest.TestCase):
         self.assertFalse(lookup_word("cvvcem"))
         self.assertGreater(urlopen.call_count, 1)
 
+    @patch("caesar_cipher.time.sleep")
     @patch("caesar_cipher.urllib.request.urlopen")
-    def test_dictionary_outage_is_reported(self, urlopen):
+    def test_dictionary_outage_is_reported(self, urlopen, _sleep):
         urlopen.side_effect = urllib.error.URLError("offline")
 
         with self.assertRaises(DictionaryError):
